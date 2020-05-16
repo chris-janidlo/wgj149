@@ -10,7 +10,7 @@ public class Player : MonoBehaviour
     [Header("Physics")]
     public float Gravity;
 
-    public float TurnSpeed;
+    public AnimationCurve TurnSpeedByTranslationalSpeed;
 
     [Range(0, 1)]
     public float CriticalVerticality;
@@ -112,7 +112,7 @@ public class Player : MonoBehaviour
 
     void rotate ()
     {
-        targetRotation += rotationalInput * TurnSpeed;
+        targetRotation += rotationalInput * TurnSpeedByTranslationalSpeed.Evaluate(Rigidbody.velocity.magnitude);
         targetRotation = new Vector2
         (
             targetRotation.x % 360,
