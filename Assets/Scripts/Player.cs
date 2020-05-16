@@ -8,11 +8,17 @@ public class Player : MonoBehaviour
 {
     [Header("Physics")]
     public float Gravity;
-    public float MaxSpeed, TurnSpeed;
+
+    public float TurnSpeed;
+
+    [Range(0, 1)]
+    public float CriticalVerticality;
 
     public float FlapTime, FlapBurst, FlapHorizontalScale;
 
-    public float DragCoeff = 1;
+    public Vector2 PitchRange = new Vector2(-90, 90);
+
+    public float DragCoefficientWhenFlapping;
 
     [Header("Controls")]
     public string FlapButton;
@@ -57,23 +63,27 @@ public class Player : MonoBehaviour
         targetRotation = new Vector2
         (
             targetRotation.x % 360,
-            Mathf.Clamp(targetRotation.y, -90, 90)
+            Mathf.Clamp(targetRotation.y, PitchRange.x, PitchRange.y)
         );
 
-        transform.localRotation = Quaternion.AngleAxis(targetRotation.y, Vector3.right);
+        transform.localRotation = Quaternion.AngleAxis(-targetRotation.y, Vector3.right);
         transform.localRotation *= Quaternion.AngleAxis(targetRotation.x, transform.InverseTransformDirection(Vector3.up));
     }
 
     void translate ()
     {
-        if (flapTimer <= 0)
+        bool flapping = flapTimer > 0;
+
+        if (!flapping)
         {
-            if (flapInput) flap();
+            if (flapInput) { flapping = true; flap(); }
             else glide();
         }
 
         Rigidbody.AddForce(Vector3.down * Gravity, ForceMode.Acceleration);
-        Rigidbody.AddForce(-DragCoeff * Rigidbody.velocity.normalized * Rigidbody.velocity.sqrMagnitude);
+
+        if (flapping)
+            Rigidbody.AddForce(-DragCoefficientWhenFlapping * Rigidbody.velocity.normalized * Rigidbody.velocity.sqrMagnitude, ForceMode.Acceleration);
     }
 
     void flap ()
@@ -89,15 +99,16 @@ public class Player : MonoBehaviour
     {
         float verticality = Mathf.Abs(targetRotation.y) / 90;
 
-        Rigidbody.velocity = Vector3.Scale
+        Vector3 moveDirection = new Vector3
         (
-            transform.forward,
-            new Vector3
-            (
-                1 - verticality,
-                verticality,
-                1 - verticality
-            )
-        ).normalized * Rigidbody.velocity.magnitude;
+            (1 - verticality) * transform.forward.x,
+            verticality * transform.forward.y,
+            (1 - verticality) * transform.forward.z
+        );
+
+        if (verticality >= CriticalVerticality && Mathf.Sign(moveDirection.y) != Mathf.Sign(Rigidbody.velocity.y))
+            moveDirection.y *= -1;
+
+        Rigidbody.velocity = moveDirection.normalized * Rigidbody.velocity.magnitude;
     }
 }
