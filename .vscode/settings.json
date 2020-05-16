@@ -1,0 +1,27 @@
+{
+    "files.exclude":
+    {
+        "**/.DS_Store":true,
+        "**/.git":true,
+        "**/.gitmodules":true,
+        "**/*.sln":true,
+        "**/*.booproj":true,
+        "**/*.pidb":true,
+        "**/*.suo":true,
+        "**/*.user":true,
+        "**/*.userprefs":true,
+        "**/*.unityproj":true,
+        "**/*.dll":true,
+        "**/*.exe":true,
+        "**/*.meta":true,
+        "build/":true,
+        "Build/":true,
+        "Library/":true,
+        "library/":true,
+        "obj/":true,
+        "Obj/":true,
+        "ProjectSettings/":true,
+        "temp/":true,
+        "Temp/":true
+    }
+}
