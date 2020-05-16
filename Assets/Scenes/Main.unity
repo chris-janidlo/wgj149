@@ -525,8 +525,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 889c9db51969e4e678da0eeac44df004, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  verticality: 0
-  moveDirection: {x: 0, y: 0, z: 0}
   Gravity: 10
   TurnSpeed: 2
   CriticalVerticality: 0.1
@@ -535,12 +533,69 @@ MonoBehaviour:
   FlapHorizontalScale: 3
   PitchRange: {x: -90, y: 90}
   DragCoefficientWhenFlapping: 0.02
+  HalfHeight: 0.5
+  GroundedFudge: 0.1
+  GroundLayers:
+    serializedVersion: 2
+    m_Bits: 256
+  MaxStamina: 300
+  StaminaChangePerSecondFlying: -1
+  StaminaChangePerSecondResting: 30
+  FlapStaminaCost: 10
+  StaminaStunPeriod: 1
+  BurstSlots: 3
+  BurstStunPeriod: 1
+  BurstRecoveryPerSecondByAvailableBurst:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 40
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 100
+      value: 45
+      inSlope: 0.2
+      outSlope: 0.2
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 200
+      value: 80
+      inSlope: 0.375
+      outSlope: 0.375
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 300
+      value: 120
+      inSlope: 0.4
+      outSlope: 0.4
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   FlapButton: Flap
   TranslationalAxis: Translation
   PitchAxis: Pitch
   YawAxis: Yaw
   InversePitch: 0
   Rigidbody: {fileID: 317722606}
+  TriedToFlapWhenUnableTo:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &317722605
 Transform:
   m_ObjectHideFlags: 0

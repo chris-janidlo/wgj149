@@ -1,6 +1,7 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using crass;
 
@@ -20,6 +21,19 @@ public class Player : MonoBehaviour
 
     public float DragCoefficientWhenFlapping;
 
+    public float HalfHeight, GroundedFudge;
+    public LayerMask GroundLayers;
+
+    [Header("Resources")]
+    public float MaxStamina;
+
+    public float StaminaChangePerSecondFlying, StaminaChangePerSecondResting, FlapStaminaCost;
+    public float StaminaStunPeriod;
+
+    public int BurstSlots;
+    public float BurstStunPeriod;
+    public AnimationCurve BurstRecoveryPerSecondByAvailableBurst; // where each slot is worth 100
+
     [Header("Controls")]
     public string FlapButton;
     public string TranslationalAxis, PitchAxis, YawAxis;
@@ -27,6 +41,11 @@ public class Player : MonoBehaviour
 
     [Header("References")]
     public Rigidbody Rigidbody;
+
+    public UnityEvent TriedToFlapWhenUnableTo;
+
+    public float Stamina { get; private set; }
+    public float BurstStamina { get; private set; }
 
     bool flapInput { get; set; }
     // scalar for z force on flap (ie you move forward a little on flap when this is positive, or back a little when negative)
@@ -38,9 +57,18 @@ public class Player : MonoBehaviour
 
     float flapTimer;
 
+    float staminaStunTimer, burstStaminaStunTimer;
+
+    void Start ()
+    {
+        Stamina = MaxStamina;
+        BurstStamina = BurstSlots * 100;
+    }
+
     void Update ()
     {
         trackInput();
+        manageStamina();
     }
 
     void FixedUpdate ()
@@ -62,6 +90,26 @@ public class Player : MonoBehaviour
         flapTimer -= Time.deltaTime;
     }
 
+    void manageStamina ()
+    {
+        staminaStunTimer -= Time.deltaTime;
+        if (staminaStunTimer <= 0)
+        {
+            bool touchingGround = Physics.SphereCast(new Ray(transform.position, Vector3.down), GroundedFudge, HalfHeight, GroundLayers);
+            bool resting = touchingGround && Rigidbody.velocity.sqrMagnitude == 0;
+
+            Stamina += (resting ? StaminaChangePerSecondResting : StaminaChangePerSecondFlying) * Time.deltaTime;
+            Stamina = Mathf.Clamp(Stamina, 0, MaxStamina);
+        }
+
+        burstStaminaStunTimer -= Time.deltaTime;
+        if (burstStaminaStunTimer <= 0)
+        {
+            BurstStamina += BurstRecoveryPerSecondByAvailableBurst.Evaluate(BurstStamina) * Time.deltaTime;
+            BurstStamina = Mathf.Min(BurstStamina, BurstSlots * 100);
+        }
+    }
+
     void rotate ()
     {
         targetRotation += rotationalInput * TurnSpeed;
@@ -77,18 +125,38 @@ public class Player : MonoBehaviour
 
     void translate ()
     {
+        Rigidbody.AddForce(Vector3.down * Gravity, ForceMode.Acceleration);
+
+        if (Stamina <= 0) return;
+
         bool flapping = flapTimer > 0;
 
         if (!flapping)
         {
-            if (flapInput) { flapping = true; flap(); }
-            else glide();
-        }
+            bool flappable = canFlap();
 
-        Rigidbody.AddForce(Vector3.down * Gravity, ForceMode.Acceleration);
+            if (!flapInput || !flappable)
+            {
+                glide();
+            }
+            else if (flapInput && !flappable)
+            {
+                TriedToFlapWhenUnableTo.Invoke();
+            }
+            else
+            {
+                flapping = true;
+                flap();
+            }
+        }
 
         if (flapping)
             Rigidbody.AddForce(-DragCoefficientWhenFlapping * Rigidbody.velocity.normalized * Rigidbody.velocity.sqrMagnitude, ForceMode.Acceleration);
+    }
+
+    bool canFlap ()
+    {
+        return translationalInput < 0 || (Stamina >= FlapStaminaCost && BurstStamina >= 100);
     }
 
     void flap ()
@@ -109,6 +177,9 @@ public class Player : MonoBehaviour
         }
 
         Rigidbody.AddForce(force, ForceMode.VelocityChange);
+
+        consumeStamina(FlapStaminaCost);
+        consumeBurstSlot();
     }
 
     void glide ()
@@ -126,5 +197,17 @@ public class Player : MonoBehaviour
             moveDirection.y *= -1;
 
         Rigidbody.velocity = moveDirection.normalized * Rigidbody.velocity.magnitude;
+    }
+
+    void consumeStamina (float amount)
+    {
+        Stamina -= amount;
+        staminaStunTimer = StaminaStunPeriod;
+    }
+
+    void consumeBurstSlot ()
+    {
+        BurstStamina -= 100;
+        burstStaminaStunTimer = BurstStunPeriod;
     }
 }
