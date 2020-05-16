@@ -90,9 +90,20 @@ public class Player : MonoBehaviour
     {
         flapTimer = FlapTime;
 
-        var flapDir = (Vector3.up + translationalInput * transform.forward * FlapHorizontalScale).normalized;
+        var force = (Vector3.up + translationalInput * transform.forward * FlapHorizontalScale).normalized * FlapBurst;
 
-        Rigidbody.AddForce(flapDir * FlapBurst, ForceMode.VelocityChange);
+        if (translationalInput < 0)
+        {
+            Vector2 ignoringGravity = new Vector2
+            (
+                Rigidbody.velocity.x,
+                Rigidbody.velocity.z
+            );
+
+            force = Vector3.ClampMagnitude(force, ignoringGravity.magnitude);
+        }
+
+        Rigidbody.AddForce(force, ForceMode.VelocityChange);
     }
 
     void glide ()
