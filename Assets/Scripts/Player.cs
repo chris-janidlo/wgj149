@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -40,6 +40,17 @@ public class Player : MonoBehaviour
 
     void Update ()
     {
+        trackInput();
+    }
+
+    void FixedUpdate ()
+    {
+        rotate();
+        translate();
+    }
+
+    void trackInput ()
+    {
         flapInput = Input.GetButton(FlapButton);
         translationalInput = Input.GetAxis(TranslationalAxis);
         rotationalInput = new Vector2
@@ -49,12 +60,6 @@ public class Player : MonoBehaviour
         );
 
         flapTimer -= Time.deltaTime;
-    }
-
-    void FixedUpdate ()
-    {
-        rotate();
-        translate();
     }
 
     void rotate ()
