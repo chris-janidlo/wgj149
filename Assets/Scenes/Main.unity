@@ -550,7 +550,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  CriticalVerticality: 0.645
+  CriticalVerticality: 0.1
   FlapTime: 0.5
   FlapBurst: 18
   FlapHorizontalScale: 3
