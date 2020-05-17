@@ -12,6 +12,8 @@ public class Player : MonoBehaviour
 
     public AnimationCurve TurnSpeedByTranslationalSpeed;
 
+    public float DeathCollisionSpeed;
+
     [Range(0, 1)]
     public float CriticalVerticality;
 
@@ -45,7 +47,7 @@ public class Player : MonoBehaviour
     [Header("References")]
     public Rigidbody Rigidbody;
 
-    public UnityEvent TriedToFlapWhenUnableTo;
+    public UnityEvent TriedToFlapWhenUnableTo, Died;
 
     public float Stamina { get; private set; }
     public float BurstStamina { get; private set; }
@@ -78,6 +80,15 @@ public class Player : MonoBehaviour
     {
         rotate();
         translate();
+    }
+
+    void OnCollisionEnter (Collision collision)
+    {
+        if ((Rigidbody.velocity).sqrMagnitude >= DeathCollisionSpeed * DeathCollisionSpeed)
+        {
+            Died.Invoke();
+            Destroy(this); // remove the component
+        }
     }
 
     void trackInput ()

@@ -550,6 +550,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  DeathCollisionSpeed: 20
   CriticalVerticality: 0.1
   FlapTime: 0.5
   FlapBurst: 18
@@ -619,6 +620,9 @@ MonoBehaviour:
   InversePitch: 0
   Rigidbody: {fileID: 317722606}
   TriedToFlapWhenUnableTo:
+    m_PersistentCalls:
+      m_Calls: []
+  Died:
     m_PersistentCalls:
       m_Calls: []
 --- !u!4 &317722605
