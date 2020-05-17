@@ -556,6 +556,7 @@ MonoBehaviour:
   FlapHorizontalScale: 3
   PitchRange: {x: -90, y: 90}
   DragCoefficientWhenFlapping: 0.02
+  MaximumFallSpeedWhenBraking: 10
   HalfHeight: 0.5
   GroundedFudge: 0.1
   GroundLayers:
@@ -563,7 +564,7 @@ MonoBehaviour:
     m_Bits: 256
   MaxStamina: 300
   StaminaChangePerSecondFlying: -1
-  StaminaChangePerSecondResting: 30
+  StaminaChangePerSecondResting: 150
   FlapStaminaCost: 10
   StaminaStunPeriod: 1
   BurstSlots: 3
@@ -610,6 +611,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  FallSlowAdditionalStaminaCostPerSecond: 9
   FlapButton: Flap
   TranslationalAxis: Translation
   PitchAxis: Pitch

@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -20,6 +20,7 @@ public class Player : MonoBehaviour
     public Vector2 PitchRange = new Vector2(-90, 90);
 
     public float DragCoefficientWhenFlapping;
+    public float MaximumFallSpeedWhenBraking;
 
     public float HalfHeight, GroundedFudge;
     public LayerMask GroundLayers;
@@ -33,6 +34,8 @@ public class Player : MonoBehaviour
     public int BurstSlots;
     public float BurstStunPeriod;
     public AnimationCurve BurstRecoveryPerSecondByAvailableBurst; // where each slot is worth 100
+
+    public float FallSlowAdditionalStaminaCostPerSecond;
 
     [Header("Controls")]
     public string FlapButton;
@@ -151,7 +154,18 @@ public class Player : MonoBehaviour
         }
 
         if (flapping)
+        {
             Rigidbody.AddForce(-DragCoefficientWhenFlapping * Rigidbody.velocity.normalized * Rigidbody.velocity.sqrMagnitude, ForceMode.Acceleration);
+
+            float staminaCostThisFrame = FallSlowAdditionalStaminaCostPerSecond * Time.deltaTime;
+
+            // if we're braking and falling and have stamina
+            if (translationalInput < 0 && Rigidbody.velocity.y < 0 && -Rigidbody.velocity.y > Mathf.Abs(Rigidbody.velocity.x) && -Rigidbody.velocity.y > Mathf.Abs(Rigidbody.velocity.z) && Stamina > staminaCostThisFrame)
+            {
+                Rigidbody.velocity = Vector3.ClampMagnitude(Rigidbody.velocity, MaximumFallSpeedWhenBraking);
+                Stamina -= staminaCostThisFrame;
+            }
+        }
     }
 
     bool canFlap ()
