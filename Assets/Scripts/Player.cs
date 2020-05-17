@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -178,8 +178,11 @@ public class Player : MonoBehaviour
 
         Rigidbody.AddForce(force, ForceMode.VelocityChange);
 
-        consumeStamina(FlapStaminaCost);
-        consumeBurstSlot();
+        if (translationalInput <= 0)
+        {
+            consumeStamina(FlapStaminaCost);
+            consumeBurstSlot();
+        }
     }
 
     void glide ()
