@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -21,7 +21,7 @@ public class Player : MonoBehaviour
 
     public Vector2 PitchRange = new Vector2(-90, 90);
 
-    public float DragCoefficientWhenFlapping;
+    public float DragCoefficientWhenFlapping, DragCoefficientWhenGliding;
     public float MaximumFallSpeedWhenBraking;
 
     public float HalfHeight, GroundedFudge;
@@ -164,10 +164,11 @@ public class Player : MonoBehaviour
             }
         }
 
+        float drag = flapping ? DragCoefficientWhenFlapping : DragCoefficientWhenGliding;
+        Rigidbody.AddForce(-drag * Rigidbody.velocity.normalized * Rigidbody.velocity.sqrMagnitude, ForceMode.Acceleration);
+
         if (flapping)
         {
-            Rigidbody.AddForce(-DragCoefficientWhenFlapping * Rigidbody.velocity.normalized * Rigidbody.velocity.sqrMagnitude, ForceMode.Acceleration);
-
             float staminaCostThisFrame = FallSlowAdditionalStaminaCostPerSecond * Time.deltaTime;
 
             // if we're braking and falling and have stamina
