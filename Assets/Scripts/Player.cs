@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -84,10 +84,15 @@ public class Player : MonoBehaviour
 
     void OnCollisionEnter (Collision collision)
     {
-        if ((Rigidbody.velocity).sqrMagnitude >= DeathCollisionSpeed * DeathCollisionSpeed)
+        if ((collision.relativeVelocity).sqrMagnitude >= DeathCollisionSpeed * DeathCollisionSpeed)
         {
             Died.Invoke();
+
+            // ragdoll:
             Destroy(this); // remove the component
+            Rigidbody.useGravity = true;
+            Rigidbody.constraints = RigidbodyConstraints.None;
+            // TODO: figure out camera following. maybe turn off rotation and switch to a lookat mode?
         }
     }
 
