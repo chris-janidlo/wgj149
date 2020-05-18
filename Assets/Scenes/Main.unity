@@ -2622,6 +2622,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Gravity: 10
+  DragCoefficient: 0.001
+  HalfHeight: 0.5
+  GroundedFudge: 0.1
+  GroundLayers:
+    serializedVersion: 2
+    m_Bits: 256
+  DeathCollisionSpeed: 20
+  CriticalVerticality: 0.1
+  FreefallBrakeAngle: -45
   TurnSpeedByTranslationalSpeed:
     serializedVersion: 2
     m_Curve:
@@ -2646,82 +2655,24 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  DeathCollisionSpeed: 20
-  CriticalVerticality: 0.1
-  FlapTime: 0.5
-  FlapBurst: 18
-  FlapHorizontalScale: 4
   PitchRange: {x: -90, y: 90}
-  DragCoefficientWhenFlapping: 0.02
-  DragCoefficientWhenGliding: 0.001
-  MaximumFallSpeedWhenBraking: 10
-  HalfHeight: 0.5
-  GroundedFudge: 0.1
-  GroundLayers:
-    serializedVersion: 2
-    m_Bits: 256
+  ManualFlyingAcceleration: {x: 10, y: 8}
+  ManualFlyingMaxSpeed: 25
+  ManualFlyingDeceleration: 20
   MaxStamina: 300
-  StaminaChangePerSecondFlying: 0
+  StaminaChangePerSecondManualFlying: 0
   StaminaChangePerSecondResting: 150
-  FlapStaminaCost: 0
-  StaminaStunPeriod: 1
-  BurstSlots: 3
-  BurstStunPeriod: 0
-  BurstRecoveryPerSecondByAvailableBurst:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 300
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 100
-      value: 300
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 200
-      value: 300
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 300
-      value: 300
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  FallSlowAdditionalStaminaCostPerSecond: 9
-  FlapButton: Flap
-  TranslationalAxis: Translation
+  InversePitch: 0
+  ForwardAxis: Forward Flight
+  SidewaysAxis: Sideways Flight
   PitchAxis: Pitch
   YawAxis: Yaw
-  InversePitch: 0
   Rigidbody: {fileID: 317722606}
-  TriedToFlapWhenUnableTo:
-    m_PersistentCalls:
-      m_Calls: []
   Died:
     m_PersistentCalls:
       m_Calls: []
+  automaticVelocityState: {x: 0, y: 0, z: 0}
+  manualVelocityState: {x: 0, y: 0, z: 0}
 --- !u!4 &317722605
 Transform:
   m_ObjectHideFlags: 0
@@ -2730,7 +2681,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 317722603}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -158.99, y: 259.43, z: -188.92}
+  m_LocalPosition: {x: -158.99, y: 800, z: -188.92}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1103785757}
