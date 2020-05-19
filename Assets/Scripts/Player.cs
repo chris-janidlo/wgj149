@@ -9,7 +9,6 @@ public class Player : MonoBehaviour
 {
     [Header("Physics")]
     public float Gravity;
-    public float DragCoefficient;
 
     public float HalfHeight, GroundedFudge;
     public LayerMask GroundLayers;
@@ -19,7 +18,10 @@ public class Player : MonoBehaviour
     [Range(0, 1)]
     public float CriticalVerticality;
 
-    public float FreefallBrakeAngle;
+    [Tooltip("At any targetRotation value lower than this, you are considered to be in freefall")]
+    public float FreefallAngle;
+
+    public float GlideSpeedMaintenanceTime, GlideDeceleration;
 
     public AnimationCurve TurnSpeedByTranslationalSpeed;
     public Vector2 PitchRange = new Vector2(-90, 90);
@@ -34,7 +36,7 @@ public class Player : MonoBehaviour
 
     [Header("Controls")]
     public bool InversePitch;
-    public string ForwardAxis, SidewaysAxis, PitchAxis, YawAxis;
+    public string ForwardAxis, SidewaysAxis, GlideButton, PitchAxis, YawAxis;
 
     [Header("References")]
     public Rigidbody Rigidbody;
@@ -42,13 +44,18 @@ public class Player : MonoBehaviour
 
     public float Stamina { get; private set; }
 
+    float verticality => Mathf.Abs(targetRotation.y) / 90;
+    bool criticallyVertical => verticality >= CriticalVerticality;
+
     // x is forward/backward, y is side to side
     Vector2 translationalInput;
     // x is yaw, y is pitch
     Vector2 rotationalInput;
+    bool glideInput;
 
-    public Vector3 automaticVelocityState, manualVelocityState;
     Vector2 targetRotation;
+
+    float glideTimer;
 
     void Start ()
     {
@@ -94,6 +101,8 @@ public class Player : MonoBehaviour
             Input.GetAxis(YawAxis),
             Input.GetAxis(PitchAxis) * (InversePitch ? -1 : 1)
         );
+
+        glideInput = Input.GetButton(GlideButton);
     }
 
     void manageStamina ()
@@ -126,59 +135,26 @@ public class Player : MonoBehaviour
 
     void translate ()
     {
-        // AUTOMATIC
-
-        automaticVelocityState += Vector3.down * Gravity * Time.deltaTime;
-
-        if (Stamina > 0) glide();
-
-        automaticVelocityState += -DragCoefficient * automaticVelocityState.normalized * automaticVelocityState.sqrMagnitude * Time.deltaTime;
-
-        // MANUAL
-
-        Vector3 manualVelocityChange;
-
-        bool flyingManually = Stamina > 0 && translationalInput != Vector2.zero;
-
-        if (!flyingManually)
+        if (Stamina > 0 && glideInput)
         {
-            manualVelocityChange = -manualVelocityState.normalized * ManualFlyingDeceleration;
-            manualVelocityChange = Vector3.ClampMagnitude(manualVelocityChange, manualVelocityState.magnitude);
+            glide();
         }
-        else
+        else if (Stamina > 0 && translationalInput != Vector2.zero)
         {
-            Vector2 direction = translationalInput.normalized;
-            
-            manualVelocityChange = new Vector3
-            (
-                direction.y * ManualFlyingAcceleration.y,
-                0,
-                direction.x * ManualFlyingAcceleration.x
-            );
+            glideTimer = GlideSpeedMaintenanceTime;
+            flyManually();
         }
-
-        manualVelocityState += manualVelocityChange * Time.deltaTime;
-        manualVelocityState = Vector3.ClampMagnitude(manualVelocityState, ManualFlyingMaxSpeed);
-
-        // COMBINE
-
-        if (flyingManually && targetRotation.y >= FreefallBrakeAngle)
+        else if (!criticallyVertical)
         {
-            automaticVelocityState = Vector3.ClampMagnitude(automaticVelocityState, ManualFlyingMaxSpeed);
+            glideTimer = GlideSpeedMaintenanceTime;
+            Rigidbody.velocity = Rigidbody.velocity.Decelerate(ManualFlyingDeceleration);
         }
-
-        Rigidbody.velocity = automaticVelocityState + transform.TransformDirection(manualVelocityState);
-
-        if (flyingManually && targetRotation.y >= FreefallBrakeAngle)
-        {
-            Rigidbody.velocity = Vector3.ClampMagnitude(Rigidbody.velocity, ManualFlyingMaxSpeed);
-        }
+        
+        Rigidbody.velocity += Vector3.down * Gravity * Time.deltaTime;
     }
 
     void glide ()
     {
-        float verticality = Mathf.Abs(targetRotation.y) / 90;
-
         Vector3 moveDirection = new Vector3
         (
             (1 - verticality) * transform.forward.x,
@@ -186,9 +162,50 @@ public class Player : MonoBehaviour
             (1 - verticality) * transform.forward.z
         );
 
-        if (verticality >= CriticalVerticality && Mathf.Sign(moveDirection.y) != Mathf.Sign(automaticVelocityState.y))
+        if (criticallyVertical && Mathf.Sign(moveDirection.y) != Mathf.Sign(Rigidbody.velocity.y))
             moveDirection.y *= -1;
 
-        automaticVelocityState = moveDirection.normalized * automaticVelocityState.magnitude;
+        Rigidbody.velocity = moveDirection.normalized * Rigidbody.velocity.magnitude;
+
+        if (targetRotation.y >= FreefallAngle)
+        {
+            glideTimer -= Time.deltaTime;
+
+            if (glideTimer <= 0)
+                Rigidbody.velocity = Rigidbody.velocity.Decelerate(GlideDeceleration);
+        }
+        else
+        {
+            glideTimer = GlideSpeedMaintenanceTime;
+        }
+    }
+
+    void flyManually ()
+    {
+        Vector2 direction = translationalInput.normalized;
+
+        if (targetRotation.y < FreefallAngle)
+        {
+            direction.x = 0;
+        }
+            
+        Vector3 flyDirection = new Vector3
+        (
+            direction.y * ManualFlyingAcceleration.y,
+            0,
+            direction.x * ManualFlyingAcceleration.x
+        );
+        
+        Rigidbody.velocity += transform.TransformDirection(flyDirection) * Time.deltaTime;
+
+        if (!criticallyVertical && Rigidbody.velocity.y < 0)
+        {
+            Rigidbody.velocity += Vector3.up * Gravity * 2 * Time.deltaTime;
+        }
+
+        if (targetRotation.y >= FreefallAngle)
+        {
+            Rigidbody.velocity = Vector3.ClampMagnitude(Rigidbody.velocity, ManualFlyingMaxSpeed);
+        }
     }
 }

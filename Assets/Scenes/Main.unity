@@ -2622,15 +2622,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Gravity: 10
-  DragCoefficient: 0.001
   HalfHeight: 0.5
   GroundedFudge: 0.1
   GroundLayers:
     serializedVersion: 2
     m_Bits: 256
-  DeathCollisionSpeed: 20
+  DeathCollisionSpeed: 50
   CriticalVerticality: 0.1
-  FreefallBrakeAngle: -45
+  FreefallAngle: -80
+  GlideSpeedMaintenanceTime: 4
+  GlideDeceleration: 10
   TurnSpeedByTranslationalSpeed:
     serializedVersion: 2
     m_Curve:
@@ -2656,7 +2657,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   PitchRange: {x: -90, y: 90}
-  ManualFlyingAcceleration: {x: 10, y: 8}
+  ManualFlyingAcceleration: {x: 40, y: 10}
   ManualFlyingMaxSpeed: 25
   ManualFlyingDeceleration: 20
   MaxStamina: 300
@@ -2665,14 +2666,13 @@ MonoBehaviour:
   InversePitch: 0
   ForwardAxis: Forward Flight
   SidewaysAxis: Sideways Flight
+  GlideButton: Glide
   PitchAxis: Pitch
   YawAxis: Yaw
   Rigidbody: {fileID: 317722606}
   Died:
     m_PersistentCalls:
       m_Calls: []
-  automaticVelocityState: {x: 0, y: 0, z: 0}
-  manualVelocityState: {x: 0, y: 0, z: 0}
 --- !u!4 &317722605
 Transform:
   m_ObjectHideFlags: 0
@@ -2681,7 +2681,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 317722603}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -158.99, y: 800, z: -188.92}
+  m_LocalPosition: {x: -158.99, y: 257.49, z: -188.92}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1103785757}
