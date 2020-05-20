@@ -2629,7 +2629,7 @@ MonoBehaviour:
     m_Bits: 256
   DeathCollisionSpeed: 50
   CriticalVerticalityGliding: 0.1
-  CriticalVerticalityFlying: 0.5
+  CriticalVerticalityFlying: 0.51
   FreefallAngle: -80
   GlideSpeedMaintenanceTime: 4
   GlideDeceleration: 10
@@ -2657,7 +2657,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  PitchRange: {x: -90, y: 90}
+  PitchRange: {x: -90, y: 45}
   ManualFlyingAcceleration: {x: 40, y: 20}
   ManualFlyingMaxSpeed: 25
   ManualFlyingGravityLift: 20
