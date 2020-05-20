@@ -49,6 +49,8 @@ public class Player : MonoBehaviour
     bool criticallyGliding => verticality >= CriticalVerticalityGliding;
     bool criticallyFlying => verticality >= CriticalVerticalityFlying;
 
+    bool grounded => Physics.SphereCast(new Ray(transform.position, Vector3.down), GroundedFudge, HalfHeight, GroundLayers);
+
     // x is forward/backward, y is side to side
     Vector2 translationalInput;
     // x is yaw, y is pitch
@@ -114,9 +116,7 @@ public class Player : MonoBehaviour
 
     void manageStamina ()
     {
-        bool touchingGround = Physics.SphereCast(new Ray(transform.position, Vector3.down), GroundedFudge, HalfHeight, GroundLayers);
-        bool resting = touchingGround && Rigidbody.velocity.sqrMagnitude == 0;
-
+        bool resting = grounded && Rigidbody.velocity.sqrMagnitude == 0;
         bool flying = translationalInput != Vector2.zero;
 
         float stamChange = resting ? StaminaChangePerSecondResting
@@ -239,9 +239,13 @@ public class Player : MonoBehaviour
 
         manualFlightVelocity = Vector3.ClampMagnitude(manualFlightVelocity, ManualFlyingMaxSpeed);
 
-        if (!criticallyFlying && separateGravity > 0)
+        if (grounded || (!criticallyFlying && separateGravity > 0))
         {
-            separateGravity -= Mathf.Min(ManualFlyingGravityLift * Time.deltaTime, separateGravity);
+            float lift = ManualFlyingGravityLift * Time.deltaTime;
+
+            if (!grounded && lift > separateGravity) lift = separateGravity;
+
+            separateGravity -= lift;
         }
 
         Rigidbody.velocity = transform.TransformDirection(manualFlightVelocity) + Vector3.down * separateGravity;
