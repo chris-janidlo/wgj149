@@ -59,9 +59,9 @@ public class Player : MonoBehaviour
 
     float glideTimer;
 
+    bool inManualFlightState;
     Vector3 manualFlightVelocity;
 
-    bool inManualFlightState;
     float separateGravity;
 
     void Start ()
@@ -223,6 +223,8 @@ public class Player : MonoBehaviour
 
         if (!inManualFlightState)
         {
+            // first frame of manual flying
+
             Vector3 worldManualFlightVelocity = transform.TransformDirection(manualFlightVelocity);
             float currentSpeedInInputDirection = Vector3.Dot(Rigidbody.velocity, worldManualFlightVelocity) / worldManualFlightVelocity.magnitude;
 
@@ -230,6 +232,9 @@ public class Player : MonoBehaviour
             {
                 manualFlightVelocity = manualFlightVelocity.normalized * currentSpeedInInputDirection;
             }
+
+            // reconcile gravity
+            separateGravity = -Rigidbody.velocity.y;
         }
 
         manualFlightVelocity = Vector3.ClampMagnitude(manualFlightVelocity, ManualFlyingMaxSpeed);
